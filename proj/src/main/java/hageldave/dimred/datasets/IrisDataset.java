@@ -1,5 +1,6 @@
 package hageldave.dimred.datasets;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -21,8 +22,9 @@ public class IrisDataset {
 	
 	private IrisDataset() {
 		ArrayList<double[]> dataset = new ArrayList<>();
-		try (	InputStream stream = new URL(SRC_URL).openStream();
-				Scanner  sc = new Scanner(stream))
+		try (	InputStream is = new URL(SRC_URL).openStream();
+				BufferedInputStream bis = new BufferedInputStream(is);
+				Scanner  sc = new Scanner(bis))
 		{
 			while(sc.hasNextLine()){
 				String nextLine = sc.nextLine();
