@@ -1,2 +1,2 @@
 # DimRedDatasets
-Ready to use in your java project: Multidimensional datasets for commonly used to benchmark dimensionality reduction. 
+Ready to use [Java]: Multidimensional data sets commonly used to benchmark dimensionality reduction.
