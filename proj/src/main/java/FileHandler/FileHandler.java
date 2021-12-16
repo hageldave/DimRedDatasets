@@ -8,14 +8,10 @@ import java.io.*;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-// zip heruntergeladene datensätze
 public class FileHandler {
     private static final String DIRECTORY = "datasets";
     private static final int BUFFER_SIZE = 4096;
@@ -71,7 +67,6 @@ public class FileHandler {
         return reader;
     }
 
-    // TODO FileInputStream zurückgeben statt ByteArrayOS
     public static InputStream getFileFromGZIP(String srcUrl, String fileName) {
         String filePath = "./" + DIRECTORY + "/" + fileName;
         InputStream targetStream = null;
@@ -99,26 +94,18 @@ public class FileHandler {
         return targetStream;
     }
 
-    public static ByteArrayOutputStream getFileFromTar(String srcUrl, String directory, String fileName) throws IOException {
-        String filePath = "./" + DIRECTORY + "/" + fileName;
+    public static InputStreamReader getFileFromTar(String srcUrl, String directory, String fileName) throws IOException {
         TarArchiveInputStream tarInput = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(srcUrl)));
 
         ArchiveEntry entry = tarInput.getNextTarEntry();
-        InputStreamReader isr;
-        // iterates over entries in the zip file
+        InputStreamReader isr = null;
         while (entry != null) {
             if (entry.getName().equals(directory + fileName) && !entry.isDirectory()) {
-                // if the entry is a file, extracts it
-                BufferedReader br = new BufferedReader(new InputStreamReader(tarInput)); // Read
-                String line;
-                while ((line = br.readLine()) != null) {
-                    System.out.println("line="+line);
-                }
+                isr = new InputStreamReader(tarInput); // Read
             }
             entry = tarInput.getNextTarEntry();
         }
-
-        return null;
+        return isr;
     }
 
     private static void extractFile(ZipInputStream zipIn, String filePath) throws IOException {
@@ -128,18 +115,6 @@ public class FileHandler {
             int read;
             while (( read = zipIn.read(bytesIn) ) != -1) {
                 bos.write(bytesIn, 0, read);
-            }
-        }
-    }
-
-    private static void extractFileAsGZIP(ZipInputStream zipIn, String filePath) throws IOException {
-        try (FileOutputStream fos = new FileOutputStream(filePath);
-             GZIPOutputStream gzipOS = new GZIPOutputStream(fos);
-             BufferedOutputStream bos = new BufferedOutputStream(gzipOS)) {
-            byte[] buffer = new byte[BUFFER_SIZE];
-            int len;
-            while((len=zipIn.read(buffer)) != -1){
-                bos.write(buffer, 0, len);
             }
         }
     }
