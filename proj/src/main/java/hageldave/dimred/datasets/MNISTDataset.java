@@ -1,10 +1,9 @@
 package hageldave.dimred.datasets;
 
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import FileHandler.FileHandler;
+
+import java.io.*;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.stream.IntStream;
@@ -15,45 +14,53 @@ public class MNISTDataset {
 	private static MNISTDataset instance;
 	private static final String SRC_URL_IMG = "http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz";
 	private static final String SRC_URL_LBL = "http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz";
+	private static final String DIRECTORY = "datasets";
+	private static final String fileName = "train-images-idx3-ubyte.gz";
 	
 	public final double[][] data;
 	public final int[] klass;
 	final int[][] klass2Indices = new int[10][];
 
-	private MNISTDataset() {
+	private MNISTDataset() throws IOException {
 		// read images
+
+		File file = new File( "./" + DIRECTORY + "/" + fileName);
 		try (
-				InputStream is = new URL(SRC_URL_IMG).openStream();
+				// TODO FileIS statt ByteOS als Param
+				//ByteArrayOutputStream bos = FileHandler.getFileFromGZIP(SRC_URL_IMG, "train-images-idx3-ubyte");
+				//InputStream is = new ByteArrayInputStream(bos.toByteArray());
+				BufferedReader br = FileHandler.getFile(SRC_URL_IMG, "train-images-idx3-ubyte.gz");
+				InputStream is = new FileInputStream(file);
 				BufferedInputStream bis = new BufferedInputStream(is);
 				GZIPInputStream zis = new GZIPInputStream(bis);
-				DataInputStream dis = new DataInputStream(zis);
-		)
+				DataInputStream dis = new DataInputStream(zis))
 		{
 			@SuppressWarnings("unused")
 			int magic = dis.readInt();
 			int nimages = dis.readInt();
 			int nrows = dis.readInt();
 			int ncols = dis.readInt();
-			
+
+
 			double[][] data = new double[nimages][nrows*ncols];
 			final double toUnit = 1.0/255.0;
 			for(int i=0; i<nimages; i++) {
 				for(int j=0; j<nrows*ncols; j++) {
-					int pixel = dis.readUnsignedByte();
+					int pixel = dis.read();
 					data[i][j] = pixel*toUnit;
 				}
 			}
 			this.data = data;
 		} catch (IOException e) {
+			System.out.println(e);
 			throw new RuntimeException("could not load data from file",e);
 		}
-		
+
 		// read labels
 		try (
-				InputStream is = new URL(SRC_URL_LBL).openStream();
-				BufferedInputStream bis = new BufferedInputStream(is);
-				GZIPInputStream zis = new GZIPInputStream(bis);
-				DataInputStream dis = new DataInputStream(zis);
+				InputStream is = FileHandler.getFileFromGZIP(SRC_URL_LBL, "train-labels-idx1-ubyte");
+				//InputStream is = new ByteArrayInputStream(bos.toByteArray());
+				DataInputStream dis = new DataInputStream(is)
 		)
 		{
 			@SuppressWarnings("unused")
@@ -74,8 +81,7 @@ public class MNISTDataset {
 			klass2Indices[t] = IntStream.range(0, klass.length).filter(i->klass[i]==t_).toArray();
 		}
 	}
-	
-	public double[][] getAllOfClass(int type){
+		public double[][] getAllOfClass(int type){
 		return Arrays.stream(klass2Indices[type]).mapToObj(i->data[i]).toArray(double[][]::new);
 	}
 	
@@ -83,10 +89,14 @@ public class MNISTDataset {
 		return klass2Indices.length;
 	}
 	
-	public static MNISTDataset getInstance() {
+	public static MNISTDataset getInstance() throws IOException {
 		if(instance==null)
 			instance = new MNISTDataset();
 		return instance;
 	}
 
+	public static void main(String[] args) throws IOException {
+		MNISTDataset ds = MNISTDataset.getInstance();
+		//System.out.println(Arrays.deepToString(ds.getAllOfClass(0)));
+	}
 }

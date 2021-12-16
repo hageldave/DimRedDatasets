@@ -1,5 +1,7 @@
 package hageldave.dimred.datasets;
 
+import FileHandler.FileHandler;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,7 +16,7 @@ public class IrisDataset {
 	
 	private static IrisDataset instance;
 	private static final String SRC_URL = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data";
-	
+	private static final String FILE_NAME = "iris.data";
 	public final double[][] data;
 	public final int[] klass;
 	public final String[] klassNames = new String[]{"setosa","versicolor","virginica"};
@@ -22,10 +24,7 @@ public class IrisDataset {
 	
 	private IrisDataset() {
 		ArrayList<double[]> dataset = new ArrayList<>();
-		try (	InputStream is = new URL(SRC_URL).openStream();
-				BufferedInputStream bis = new BufferedInputStream(is);
-				Scanner  sc = new Scanner(bis))
-		{
+		try (Scanner sc = new Scanner(FileHandler.getFile(SRC_URL, FILE_NAME))) {
 			while(sc.hasNextLine()){
 				String nextLine = sc.nextLine();
 				if(nextLine.isEmpty()){
@@ -46,8 +45,6 @@ public class IrisDataset {
 				}
 				dataset.add(values);
 			}
-		} catch(IOException e) {
-			throw new RuntimeException("could not load Iris Dataset", e);
 		}
 		
 		data = dataset.stream().map(v -> Arrays.copyOf(v, 4)).toArray(double[][]::new);
@@ -71,6 +68,11 @@ public class IrisDataset {
 	public int getNumClasses() {
 		return klass2Indices.length;
 	}
-	
+
+	public static void main(String[] args) {
+		IrisDataset set = IrisDataset.getInstance();
+		System.out.println(Arrays.deepToString(set.getAllOfClass(2)));
+		System.out.println(set.getNumClasses());
+	}
 }
 
