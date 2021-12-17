@@ -94,14 +94,15 @@ public class FileHandler {
         return targetStream;
     }
 
-    public static InputStreamReader getFileFromTar(String srcUrl, String directory, String fileName) throws IOException {
+    public static InputStream getFileFromTar(String srcUrl, String directory, String fileName) throws IOException {
         TarArchiveInputStream tarInput = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(srcUrl)));
 
         ArchiveEntry entry = tarInput.getNextTarEntry();
-        InputStreamReader isr = null;
+        InputStream isr = null;
         while (entry != null) {
             if (entry.getName().equals(directory + fileName) && !entry.isDirectory()) {
-                isr = new InputStreamReader(tarInput); // Read
+                isr = tarInput; // Read
+                break;
             }
             entry = tarInput.getNextTarEntry();
         }
