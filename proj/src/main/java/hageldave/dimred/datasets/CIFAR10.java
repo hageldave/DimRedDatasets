@@ -109,14 +109,56 @@ public class CIFAR10 {
         return toImage(b);
     }
 
+    public static byte[][] getColorChannels(final byte[] imageData) {
+        byte[][] colorChannel = new byte[3][32*32];
+        for (int row = 0; row < 32; row++) {
+            for (int col = 0; col < 32; col++) {
+                colorChannel[0][row + 32 * col] = imageData[row * 32 + col];
+                colorChannel[1][row + 32 * col] = imageData[1024 * 1 + row * 32 + col];
+                colorChannel[2][row + 32 * col] = imageData[1024 * 2 + row * 32 + col];
+            }
+        }
+        return colorChannel;
+    }
+
+    public static byte[] getRedChannel(final byte[] imageData) {
+        byte[] redChannel = new byte[32*32];
+        for (int row = 0; row < 32; row++) {
+            for (int col = 0; col < 32; col++) {
+                redChannel[row + 32 * col] = imageData[row * 32 + col];
+            }
+        }
+        return redChannel;
+    }
+
+    public static byte[] getGreenChannel(final byte[] imageData) {
+        byte[] greenChannel = new byte[32*32];
+        for (int row = 0; row < 32; row++) {
+            for (int col = 0; col < 32; col++) {
+                greenChannel[row + 32 * col] = imageData[1024 * 1 + row * 32 + col];
+            }
+        }
+        return greenChannel;
+    }
+
+    public static byte[] getBlueChannel(final byte[] imageData) {
+        byte[] blueChannel = new byte[32*32];
+        for (int row = 0; row < 32; row++) {
+            for (int col = 0; col < 32; col++) {
+                blueChannel[row + 32 * col] = imageData[1024 * 2 + row * 32 + col];
+            }
+        }
+        return blueChannel;
+    }
+
     public static BufferedImage toImage(final byte[] imageData) {
         BufferedImage image = new BufferedImage(32, 32, BufferedImage.TYPE_INT_RGB);
         for (int row = 0; row < 32; row++) {
             for (int col = 0; col < 32; col++) {
                 Color color = new Color(
-                        imageData[1 + 1024 * 0 + row * 32 + col - 1] & 0xFF,
-                        imageData[1 + 1024 * 1 + row * 32 + col - 1] & 0xFF,
-                        imageData[1 + 1024 * 2 + row * 32 + col - 1] & 0xFF);
+                        imageData[1024 * 0 + row * 32 + col] & 0xFF,
+                        imageData[1024 * 1 + row * 32 + col] & 0xFF,
+                        imageData[1024 * 2 + row * 32 + col] & 0xFF);
                 image.setRGB(col, row, color.getRGB());
             }
         }
@@ -135,6 +177,6 @@ public class CIFAR10 {
 
     public static void main(String[] args) throws IOException {
         CIFAR10 ds = CIFAR10.getInstance();
-        ImageIO.write(toImage(ds.getAllOfClass(Dataset.TRAINING, 8)[4999]), "jpeg", new FileOutputStream("./out.jpg"));
+        ImageIO.write(toImage(getGreenChannel(ds.getAllOfClass(Dataset.TRAINING, 8)[4999])), "jpeg", new FileOutputStream("./out.jpg"));
     }
 }
