@@ -44,7 +44,8 @@ public class CIFAR10 {
 
     private CIFAR10() {
         // read images
-        try (BufferedReader br = FileHandler.getFile(SRC_URL, FILE_NAME)) {
+        FileHandler handler = new FileHandler();
+        try (BufferedReader br = handler.getFileWithProgress(SRC_URL, FILE_NAME)) {
             for (int j = 1; j < BATCH_COUNT+1; j++) {
                 // read all
                 ArrayList<byte[]> dataBatch = new ArrayList<>(BATCH_SIZE);
@@ -131,6 +132,7 @@ public class CIFAR10 {
         return redChannel;
     }
 
+    // TODO: Bug
     public static byte[] getGreenChannel(final byte[] imageData) {
         byte[] greenChannel = new byte[32*32];
         for (int row = 0; row < 32; row++) {
@@ -153,6 +155,9 @@ public class CIFAR10 {
 
     public static BufferedImage toImage(final byte[] imageData) {
         BufferedImage image = new BufferedImage(32, 32, BufferedImage.TYPE_INT_RGB);
+
+        // TODO: das hier nutzen
+        //image.setRGB();
         for (int row = 0; row < 32; row++) {
             for (int col = 0; col < 32; col++) {
                 Color color = new Color(
@@ -177,6 +182,6 @@ public class CIFAR10 {
 
     public static void main(String[] args) throws IOException {
         CIFAR10 ds = CIFAR10.getInstance();
-        ImageIO.write(toImage(getGreenChannel(ds.getAllOfClass(Dataset.TRAINING, 8)[4999])), "jpeg", new FileOutputStream("./out.jpg"));
+        ImageIO.write(toImage(ds.getAllOfClass(Dataset.TRAINING, 8)[4959]), "jpeg", new FileOutputStream("./out.jpg"));
     }
 }
