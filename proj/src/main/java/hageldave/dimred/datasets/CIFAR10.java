@@ -1,6 +1,8 @@
 package hageldave.dimred.datasets;
 
 import FileHandler.FileHandler;
+import FileHandler.RPByteChannel;
+import FileHandler.RPByteChannelCallback;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -8,11 +10,14 @@ import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.channels.Channels;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
-public class CIFAR10 {
+public class CIFAR10 implements RPByteChannelCallback {
 
     // trainingset class
     public enum Dataset {
@@ -43,56 +48,65 @@ public class CIFAR10 {
 
     private CIFAR10() {
         // read images
-        FileHandler handler = new FileHandler();
-        try (BufferedReader br = handler.getFileWithProgress(SRC_URL, FILE_NAME)) {
-            for (int j = 1; j < BATCH_COUNT + 1; j++) {
-                // read all
-                try (InputStream cifarIS = FileHandler.getFileFromTar("./datasets/" + FILE_NAME, DIRECTORY, "data_batch_" + j + ".bin")) {
-                    for (int i = 0; i < BATCH_SIZE; i++) {
-                        int label = cifarIS.read();
-                        cmbndTrainingDataLbls.add(label);
+        try {
+            URL url = new URL(SRC_URL);
+            URLConnection conn = url.openConnection();
+            conn.connect();
+            RPByteChannel channel =
+                    new RPByteChannel(Channels.newChannel(url.openStream()), conn.getContentLength(), this);
+            try (BufferedReader br = FileHandler.getFile(FILE_NAME, channel)) {
+                for (int j = 1; j < BATCH_COUNT + 1; j++) {
+                    // read all
+                    try (InputStream cifarIS = FileHandler.getFileFromTar("./datasets/" + FILE_NAME, DIRECTORY, "data_batch_" + j + ".bin")) {
+                        for (int i = 0; i < BATCH_SIZE; i++) {
+                            int label = cifarIS.read();
+                            cmbndTrainingDataLbls.add(label);
 
+                            byte[] byteBuf = new byte[3072];
+                            cifarIS.read(byteBuf);
+                            cmbndTrainingData.add(byteBuf);
+
+                            double[] doubleBuf = new double[3072];
+                            for (int t = 0; t < byteBuf.length; t++) {
+                                doubleBuf[t] = byteBuf[t] & 0xFF;
+                            }
+                            // normalize (/ 255, nicht max)
+                            double max = Arrays.stream(doubleBuf).parallel().max().orElse(255);
+                            doubleBuf = Arrays.stream(doubleBuf).parallel().map(e -> e / max).toArray();
+                            cmbndTrainingDataAsDouble.add(doubleBuf);
+                        }
+                    }
+                }
+
+                try (InputStream cifarIS = FileHandler.getFileFromTar("./datasets/" + FILE_NAME, DIRECTORY, "test_batch.bin")) {
+                    for (int i = 0; i < BATCH_SIZE; i++) {
+                        testDataLbls.add(cifarIS.read());
                         byte[] byteBuf = new byte[3072];
                         cifarIS.read(byteBuf);
-                        cmbndTrainingData.add(byteBuf);
+                        testData.add(byteBuf);
 
                         double[] doubleBuf = new double[3072];
                         for (int t = 0; t < byteBuf.length; t++) {
-                            doubleBuf[t] = (byteBuf[t] & 0xFF) / 255.0;
+                            doubleBuf[t] = byteBuf[t] & 0xFF;
                         }
+                        // normalize
                         double max = Arrays.stream(doubleBuf).parallel().max().orElse(255);
                         doubleBuf = Arrays.stream(doubleBuf).parallel().map(e -> e / max).toArray();
 
-                        cmbndTrainingDataAsDouble.add(doubleBuf);
+                        testDataAsDouble.add(doubleBuf);
                     }
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
 
-            try (InputStream cifarIS = FileHandler.getFileFromTar("./datasets/" + FILE_NAME, DIRECTORY, "test_batch.bin")) {
-                for (int i = 0; i < BATCH_SIZE; i++) {
-                    testDataLbls.add(cifarIS.read());
-                    byte[] byteBuf = new byte[3072];
-                    cifarIS.read(byteBuf);
-                    testData.add(byteBuf);
-
-                    double[] doubleBuf = new double[3072];
-                    for (int t = 0; t < byteBuf.length; t++) {
-                        doubleBuf[t] = (byteBuf[t] & 0xFF) / 255.0;
-                    }
-                    double max = Arrays.stream(doubleBuf).parallel().max().orElse(255);
-                    doubleBuf = Arrays.stream(doubleBuf).parallel().map(e -> e / max).toArray();
-
-                    testDataAsDouble.add(doubleBuf);
-                }
+            for (int t = 0; t < 10; t++) {
+                int t_ = t;
+                klass2IndicesTrainingData[t] = IntStream.range(0, cmbndTrainingDataLbls.size()).filter(i -> cmbndTrainingDataLbls.get(i) == t_).toArray();
+                klass2IndicesTestData[t] = IntStream.range(0, testDataLbls.size()).filter(i -> testDataLbls.get(i) == t_).toArray();
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }
-
-        for (int t = 0; t < 10; t++) {
-            int t_ = t;
-            klass2IndicesTrainingData[t] = IntStream.range(0, cmbndTrainingDataLbls.size()).filter(i -> cmbndTrainingDataLbls.get(i) == t_).toArray();
-            klass2IndicesTestData[t] = IntStream.range(0, testDataLbls.size()).filter(i -> testDataLbls.get(i) == t_).toArray();
         }
     }
 
@@ -166,7 +180,6 @@ public class CIFAR10 {
         BufferedImage image = new BufferedImage(32, 32, BufferedImage.TYPE_INT_RGB);
 
         double max = Arrays.stream(imageData).parallel().max().orElse(1);
-
         int multiplier = (int) (255 * max);
 
         int[] imageDataAsInt = Arrays.stream(imageData).parallel().mapToInt(e -> (int) (e * multiplier)).toArray();
@@ -189,6 +202,11 @@ public class CIFAR10 {
         if (instance == null)
             instance = new CIFAR10();
         return instance;
+    }
+
+    @Override
+    public void rpByteChannelCallback(RPByteChannel rpbc, double progress) {
+        System.out.printf("Download progress: %d bytes received | Percent: %.02f%%%n", rpbc.getBytesRead(), progress);
     }
 
     public static void main(String[] args) throws IOException {

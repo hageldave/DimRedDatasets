@@ -20,7 +20,6 @@ public class FileHandler implements RPByteChannelCallback {
     public static BufferedReader getFile(String srcUrl, String fileName) {
         String filePath = "./" + DIRECTORY + "/" + fileName;
         BufferedReader reader;
-
         new File(DIRECTORY).mkdirs();
         File file = new File(filePath);
 
@@ -34,37 +33,44 @@ public class FileHandler implements RPByteChannelCallback {
             }
             reader = new BufferedReader(new FileReader(filePath));
         } catch (IOException e) {
-            throw new RuntimeException("Could not load file!", e);
+            throw new RuntimeException("Couldn't load file!", e);
+        }
+        return reader;
+    }
+
+    public static BufferedReader getFile(String fileName, RPByteChannel rpByteChannel) {
+        String filePath = "./" + DIRECTORY + "/" + fileName;
+        BufferedReader reader;
+        new File(DIRECTORY).mkdirs();
+        File file = new File(filePath);
+
+        try {
+            if (!file.isFile()) {
+                File targetFile = new File(filePath);
+                try (FileOutputStream fos = new FileOutputStream(targetFile)) {
+                    fos.getChannel().transferFrom(rpByteChannel, 0, Long.MAX_VALUE);
+                }
+            }
+            reader = new BufferedReader(new FileReader(filePath));
+            rpByteChannel.close();
+        } catch (IOException e) {
+            throw new RuntimeException("Couldn't load file!", e);
         }
         return reader;
     }
 
     public BufferedReader getFileWithProgress(String srcUrl, String fileName) {
-        String filePath = "./" + DIRECTORY + "/" + fileName;
-        BufferedReader reader;
-
-        new File(DIRECTORY).mkdirs();
-        File file = new File(filePath);
-
+        BufferedReader br;
         try {
             URL url = new URL(srcUrl);
             URLConnection conn = url.openConnection();
             conn.connect();
-            ReadableByteChannel rbc = new RPByteChannel(Channels.newChannel(url.openStream()), conn.getContentLength(), this);
-
-            // do something
-            if (!file.isFile()) {
-                File targetFile = new File(filePath);
-                try (FileOutputStream fos = new FileOutputStream(targetFile)) {
-                    fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-                }
-            }
-            reader = new BufferedReader(new FileReader(filePath));
-            rbc.close();
+            RPByteChannel rbc = new RPByteChannel(Channels.newChannel(url.openStream()), conn.getContentLength(), this);
+            br = getFile(fileName, rbc);
         } catch (IOException e) {
-            throw new RuntimeException("Could not load file!", e);
+            throw new RuntimeException("Couldn't load file!", e);
         }
-        return reader;
+        return br;
     }
 
     public static BufferedReader getFileFromZIP(String srcUrl, String directory, String fileName) {
@@ -91,7 +97,7 @@ public class FileHandler implements RPByteChannelCallback {
             }
             reader = new BufferedReader(new FileReader(filePath));
         } catch (IOException e) {
-            throw new RuntimeException("Could not load file!", e);
+            throw new RuntimeException("Couldn't load file!", e);
         }
         return reader;
     }
@@ -117,7 +123,7 @@ public class FileHandler implements RPByteChannelCallback {
                 }
                 targetStream = new FileInputStream(filePath);
             } catch (IOException e) {
-                throw new RuntimeException("Could not load file!", e);
+                throw new RuntimeException("Couldn't load file!", e);
             }
         }
         return targetStream;
