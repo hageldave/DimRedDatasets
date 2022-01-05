@@ -67,12 +67,10 @@ public class CIFAR10 implements RPByteChannelCallback {
                             cmbndTrainingData.add(byteBuf);
 
                             double[] doubleBuf = new double[3072];
-                            for (int t = 0; t < byteBuf.length; t++) {
-                                doubleBuf[t] = byteBuf[t] & 0xFF;
-                            }
-                            // normalize (/ 255, nicht max)
-                            double max = Arrays.stream(doubleBuf).parallel().max().orElse(255);
-                            doubleBuf = Arrays.stream(doubleBuf).parallel().map(e -> e / max).toArray();
+                            for (int t = 0; t < byteBuf.length; t++)
+                                // to double and normalize
+                                doubleBuf[t] = (byteBuf[t] & 0xFF) / 255.0;
+
                             cmbndTrainingDataAsDouble.add(doubleBuf);
                         }
                     }
@@ -86,12 +84,9 @@ public class CIFAR10 implements RPByteChannelCallback {
                         testData.add(byteBuf);
 
                         double[] doubleBuf = new double[3072];
-                        for (int t = 0; t < byteBuf.length; t++) {
-                            doubleBuf[t] = byteBuf[t] & 0xFF;
-                        }
-                        // normalize
-                        double max = Arrays.stream(doubleBuf).parallel().max().orElse(255);
-                        doubleBuf = Arrays.stream(doubleBuf).parallel().map(e -> e / max).toArray();
+                        for (int t = 0; t < byteBuf.length; t++)
+                            // to double and normalize
+                            doubleBuf[t] = (byteBuf[t] & 0xFF) / 255.0;;
 
                         testDataAsDouble.add(doubleBuf);
                     }
@@ -179,16 +174,11 @@ public class CIFAR10 implements RPByteChannelCallback {
     public static BufferedImage toImage(final double[] imageData) {
         BufferedImage image = new BufferedImage(32, 32, BufferedImage.TYPE_INT_RGB);
 
-        double max = Arrays.stream(imageData).parallel().max().orElse(1);
-        int multiplier = (int) (255 * max);
-
-        int[] imageDataAsInt = Arrays.stream(imageData).parallel().mapToInt(e -> (int) (e * multiplier)).toArray();
+        int[] imageDataAsInt = Arrays.stream(imageData).parallel().mapToInt(e -> (int) (e * 255.0)).toArray();
         int[] rgbData = new int[1024];
 
-        for (int i = 0; i < rgbData.length; i++) {
+        for (int i = 0; i < rgbData.length; i++)
             rgbData[i] = (imageDataAsInt[i] << 16 | imageDataAsInt[i + 1024] << 8 | imageDataAsInt[i + 1024 * 2]);
-        }
-
 
         image.setRGB(0, 0, 32, 32, rgbData, 0, 32);
         return image;
@@ -212,6 +202,6 @@ public class CIFAR10 implements RPByteChannelCallback {
     public static void main(String[] args) throws IOException {
         CIFAR10 ds = CIFAR10.getInstance();
         // System.out.println(Arrays.toString(testDataAsDouble.get(0)));
-        ImageIO.write(toImage(ds.getAllOfClass(Dataset.TRAINING, 8)[4961]), "jpeg", new FileOutputStream("./out.jpg"));
+        ImageIO.write(toImage(ds.getAllOfClass(Dataset.TRAINING, 8)[4963]), "jpeg", new FileOutputStream("./out.jpg"));
     }
 }
