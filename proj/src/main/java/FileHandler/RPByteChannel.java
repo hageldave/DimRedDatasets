@@ -14,7 +14,7 @@ public class RPByteChannel implements ReadableByteChannel {
     private long bytesRead;
     private double roundedProgress = 0.0;
 
-    RPByteChannel(ReadableByteChannel rbc, long expectedSize, RPByteChannelCallback callback) {
+    public RPByteChannel(ReadableByteChannel rbc, long expectedSize, RPByteChannelCallback callback) {
         this.callback = callback;
         this.expectedSize = expectedSize;
         this.rbc = rbc;
@@ -33,7 +33,6 @@ public class RPByteChannel implements ReadableByteChannel {
                 roundedProgress = Math.floor(progress);
             }
         }
-
         return n;
     }
 
