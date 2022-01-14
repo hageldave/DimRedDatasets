@@ -6,24 +6,20 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 
 import java.io.*;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-// zip heruntergeladene datensätze
-public class FileHandler {
+public class FileHandler implements RPByteChannelCallback {
     private static final String DIRECTORY = "datasets";
     private static final int BUFFER_SIZE = 4096;
 
     public static BufferedReader getFile(String srcUrl, String fileName) {
         String filePath = "./" + DIRECTORY + "/" + fileName;
         BufferedReader reader;
-
         new File(DIRECTORY).mkdirs();
         File file = new File(filePath);
 
@@ -37,9 +33,44 @@ public class FileHandler {
             }
             reader = new BufferedReader(new FileReader(filePath));
         } catch (IOException e) {
-            throw new RuntimeException("Could not load file!", e);
+            throw new RuntimeException("Couldn't load file!", e);
         }
         return reader;
+    }
+
+    public static BufferedReader getFile(String fileName, RPByteChannel rpByteChannel) {
+        String filePath = "./" + DIRECTORY + "/" + fileName;
+        BufferedReader reader;
+        new File(DIRECTORY).mkdirs();
+        File file = new File(filePath);
+
+        try {
+            if (!file.isFile()) {
+                File targetFile = new File(filePath);
+                try (FileOutputStream fos = new FileOutputStream(targetFile)) {
+                    fos.getChannel().transferFrom(rpByteChannel, 0, Long.MAX_VALUE);
+                }
+            }
+            reader = new BufferedReader(new FileReader(filePath));
+            rpByteChannel.close();
+        } catch (IOException e) {
+            throw new RuntimeException("Couldn't load file!", e);
+        }
+        return reader;
+    }
+
+    public BufferedReader getFileWithProgress(String srcUrl, String fileName) {
+        BufferedReader br;
+        try {
+            URL url = new URL(srcUrl);
+            URLConnection conn = url.openConnection();
+            conn.connect();
+            RPByteChannel rbc = new RPByteChannel(Channels.newChannel(url.openStream()), conn.getContentLength(), this);
+            br = getFile(fileName, rbc);
+        } catch (IOException e) {
+            throw new RuntimeException("Couldn't load file!", e);
+        }
+        return br;
     }
 
     public static BufferedReader getFileFromZIP(String srcUrl, String directory, String fileName) {
@@ -66,12 +97,11 @@ public class FileHandler {
             }
             reader = new BufferedReader(new FileReader(filePath));
         } catch (IOException e) {
-            throw new RuntimeException("Could not load file!", e);
+            throw new RuntimeException("Couldn't load file!", e);
         }
         return reader;
     }
 
-    // TODO FileInputStream zurückgeben statt ByteArrayOS
     public static InputStream getFileFromGZIP(String srcUrl, String fileName) {
         String filePath = "./" + DIRECTORY + "/" + fileName;
         InputStream targetStream = null;
@@ -87,38 +117,31 @@ public class FileHandler {
                              new BufferedOutputStream(new FileOutputStream(filePath))) {
                     byte[] bytesIn = new byte[BUFFER_SIZE];
                     int read;
-                    while (( read = zis.read(bytesIn) ) != -1) {
+                    while ((read = zis.read(bytesIn)) != -1) {
                         bos.write(bytesIn, 0, read);
                     }
                 }
                 targetStream = new FileInputStream(filePath);
             } catch (IOException e) {
-                throw new RuntimeException("Could not load file!", e);
+                throw new RuntimeException("Couldn't load file!", e);
             }
         }
         return targetStream;
     }
 
-    public static ByteArrayOutputStream getFileFromTar(String srcUrl, String directory, String fileName) throws IOException {
-        String filePath = "./" + DIRECTORY + "/" + fileName;
+    public static InputStream getFileFromTar(String srcUrl, String directory, String fileName) throws IOException {
         TarArchiveInputStream tarInput = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(srcUrl)));
 
         ArchiveEntry entry = tarInput.getNextTarEntry();
-        InputStreamReader isr;
-        // iterates over entries in the zip file
+        InputStream isr = null;
         while (entry != null) {
             if (entry.getName().equals(directory + fileName) && !entry.isDirectory()) {
-                // if the entry is a file, extracts it
-                BufferedReader br = new BufferedReader(new InputStreamReader(tarInput)); // Read
-                String line;
-                while ((line = br.readLine()) != null) {
-                    System.out.println("line="+line);
-                }
+                isr = tarInput; // Read
+                break;
             }
             entry = tarInput.getNextTarEntry();
         }
-
-        return null;
+        return isr;
     }
 
     private static void extractFile(ZipInputStream zipIn, String filePath) throws IOException {
@@ -126,21 +149,14 @@ public class FileHandler {
              BufferedOutputStream bos = new BufferedOutputStream(fos)) {
             byte[] bytesIn = new byte[BUFFER_SIZE];
             int read;
-            while (( read = zipIn.read(bytesIn) ) != -1) {
+            while ((read = zipIn.read(bytesIn)) != -1) {
                 bos.write(bytesIn, 0, read);
             }
         }
     }
 
-    private static void extractFileAsGZIP(ZipInputStream zipIn, String filePath) throws IOException {
-        try (FileOutputStream fos = new FileOutputStream(filePath);
-             GZIPOutputStream gzipOS = new GZIPOutputStream(fos);
-             BufferedOutputStream bos = new BufferedOutputStream(gzipOS)) {
-            byte[] buffer = new byte[BUFFER_SIZE];
-            int len;
-            while((len=zipIn.read(buffer)) != -1){
-                bos.write(buffer, 0, len);
-            }
-        }
+    @Override
+    public void rpByteChannelCallback(RPByteChannel rpbc, double progress) {
+        System.out.printf("Download progress: %d bytes received | Percent: %.02f%%%n", rpbc.getBytesRead(), progress);
     }
 }

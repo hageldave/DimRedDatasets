@@ -1,11 +1,7 @@
-package hageldave.dimred.datasets;
+package hageldave.dimred.datasets.regular;
 
 import FileHandler.FileHandler;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -67,12 +63,6 @@ public class IrisDataset {
 	
 	public int getNumClasses() {
 		return klass2Indices.length;
-	}
-
-	public static void main(String[] args) {
-		IrisDataset set = IrisDataset.getInstance();
-		System.out.println(Arrays.deepToString(set.getAllOfClass(2)));
-		System.out.println(set.getNumClasses());
 	}
 }
 

@@ -1,8 +1,10 @@
 package hageldave.dimred.datasets;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import hageldave.dimred.datasets.regular.IrisDataset;
+import hageldave.dimred.datasets.regular.MNISTDataset;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DimensionsTest {
 

@@ -1,4 +1,4 @@
-package hageldave.dimred.datasets;
+package hageldave.dimred.datasets.regular;
 
 import FileHandler.FileHandler;
 
@@ -133,10 +133,5 @@ public class PalmerPenguins {
         if (instance == null)
             instance = new PalmerPenguins();
         return instance;
-    }
-
-    public static void main(String[] args) {
-        PalmerPenguins pp = PalmerPenguins.getInstance();
-        System.out.println(Arrays.deepToString(pp.getAllOfClass(PClass.ISLAND, 0)));
     }
 }

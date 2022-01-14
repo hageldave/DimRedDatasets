@@ -1,10 +1,9 @@
-package hageldave.dimred.datasets;
+package hageldave.dimred.datasets.regular;
 
 
 import FileHandler.FileHandler;
 
 import java.io.*;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 import java.util.zip.GZIPInputStream;
@@ -21,14 +20,10 @@ public class MNISTDataset {
 	public final int[] klass;
 	final int[][] klass2Indices = new int[10][];
 
-	private MNISTDataset() throws IOException {
+	private MNISTDataset() {
 		// read images
-
 		File file = new File( "./" + DIRECTORY + "/" + fileName);
 		try (
-				// TODO FileIS statt ByteOS als Param
-				//ByteArrayOutputStream bos = FileHandler.getFileFromGZIP(SRC_URL_IMG, "train-images-idx3-ubyte");
-				//InputStream is = new ByteArrayInputStream(bos.toByteArray());
 				BufferedReader br = FileHandler.getFile(SRC_URL_IMG, "train-images-idx3-ubyte.gz");
 				InputStream is = new FileInputStream(file);
 				BufferedInputStream bis = new BufferedInputStream(is);
@@ -58,10 +53,11 @@ public class MNISTDataset {
 
 		// read labels
 		try (
-				InputStream is = FileHandler.getFileFromGZIP(SRC_URL_LBL, "train-labels-idx1-ubyte");
-				//InputStream is = new ByteArrayInputStream(bos.toByteArray());
-				DataInputStream dis = new DataInputStream(is)
-		)
+				BufferedReader br = FileHandler.getFile(SRC_URL_LBL, "train-labels-idx1-ubyte.gz");
+				InputStream is = new FileInputStream(file);
+				BufferedInputStream bis = new BufferedInputStream(is);
+				GZIPInputStream zis = new GZIPInputStream(bis);
+				DataInputStream dis = new DataInputStream(zis))
 		{
 			@SuppressWarnings("unused")
 			int magic = dis.readInt();
@@ -97,10 +93,5 @@ public class MNISTDataset {
 				throw new RuntimeException(e);
 			}
 		return instance;
-	}
-
-	public static void main(String[] args) throws IOException {
-		MNISTDataset ds = MNISTDataset.getInstance();
-		//System.out.println(Arrays.deepToString(ds.getAllOfClass(0)));
 	}
 }

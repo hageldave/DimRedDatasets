@@ -1,8 +1,7 @@
-package hageldave.dimred.datasets;
+package hageldave.dimred.datasets.regular;
 
 import FileHandler.FileHandler;
 
-import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -58,11 +57,5 @@ public class WineQualityDataset {
         if (instance == null)
             instance = new WineQualityDataset();
         return instance;
-    }
-
-    public static void main(String[] args) {
-        WineQualityDataset set = WineQualityDataset.getInstance();
-        System.out.println(Arrays.deepToString(set.getAllOfClass(8)));
-
     }
 }
