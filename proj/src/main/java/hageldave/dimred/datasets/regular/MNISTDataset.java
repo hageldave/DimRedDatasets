@@ -87,11 +87,7 @@ public class MNISTDataset {
 	
 	public static MNISTDataset getInstance() {
 		if(instance==null)
-			try {
 			instance = new MNISTDataset();
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
 		return instance;
 	}
 }
