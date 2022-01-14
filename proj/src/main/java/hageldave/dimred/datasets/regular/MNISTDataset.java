@@ -1,4 +1,4 @@
-package hageldave.dimred.datasets;
+package hageldave.dimred.datasets.regular;
 
 
 import FileHandler.FileHandler;
@@ -89,10 +89,5 @@ public class MNISTDataset {
 		if(instance==null)
 			instance = new MNISTDataset();
 		return instance;
-	}
-
-	public static void main(String[] args) {
-		MNISTDataset ds = MNISTDataset.getInstance();
-		System.out.println(Arrays.deepToString(ds.getAllOfClass(0)));
 	}
 }

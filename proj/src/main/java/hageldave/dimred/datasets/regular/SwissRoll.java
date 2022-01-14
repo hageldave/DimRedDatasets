@@ -1,4 +1,4 @@
-package hageldave.dimred.datasets;
+package hageldave.dimred.datasets.regular;
 
 import FileHandler.FileHandler;
 
@@ -114,11 +114,5 @@ public class SwissRoll {
 
     public int getNumClasses() {
         return preKlass2Indices.length;
-    }
-
-    public static void main(String[] args) {
-        SwissRoll set = SwissRoll.getInstance();
-        //System.out.println(Arrays.deepToString(set.getAllOfClass(DATA_TYPE.ROLL, 1)));
-        System.out.println(Arrays.deepToString(set.getAllOfClass(DATA_TYPE.PRE, 1)));
     }
 }

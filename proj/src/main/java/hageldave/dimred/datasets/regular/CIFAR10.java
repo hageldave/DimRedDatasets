@@ -1,13 +1,11 @@
-package hageldave.dimred.datasets;
+package hageldave.dimred.datasets.regular;
 
 import FileHandler.FileHandler;
 import FileHandler.RPByteChannel;
 import FileHandler.RPByteChannelCallback;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -197,11 +195,5 @@ public class CIFAR10 implements RPByteChannelCallback {
     @Override
     public void rpByteChannelCallback(RPByteChannel rpbc, double progress) {
         System.out.printf("Download progress: %d bytes received | Percent: %.02f%%%n", rpbc.getBytesRead(), progress);
-    }
-
-    public static void main(String[] args) throws IOException {
-        CIFAR10 ds = CIFAR10.getInstance();
-        // System.out.println(Arrays.toString(testDataAsDouble.get(0)));
-        ImageIO.write(toImage(ds.getAllOfClass(Dataset.TRAINING, 8)[4963]), "jpeg", new FileOutputStream("./out.jpg"));
     }
 }
