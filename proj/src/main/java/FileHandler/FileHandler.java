@@ -9,6 +9,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -72,8 +74,8 @@ public class FileHandler implements RPByteChannelCallback {
         }
         return br;
     }
-
-    public static BufferedReader getFileFromZIP(String srcUrl, String directory, String fileName) {
+    
+    public static BufferedReader getFileFromZIP(String srcUrl, String directory, String fileName, Charset charset) {
         String filePath = "./" + DIRECTORY + "/" + fileName;
         BufferedReader reader;
         try {
@@ -95,14 +97,18 @@ public class FileHandler implements RPByteChannelCallback {
                     }
                 }
             }
-            reader = new BufferedReader(new FileReader(filePath));
+            reader = new BufferedReader(new FileReader(filePath, charset));
         } catch (IOException e) {
             throw new RuntimeException("Couldn't load file!", e);
         }
         return reader;
     }
 
-    public static InputStream getFileFromGZIP(String srcUrl, String fileName) {
+    public static BufferedReader getFileFromZIP(String srcUrl, String directory, String fileName) {
+        return getFileFromZIP(srcUrl, directory, fileName, StandardCharsets.UTF_8);
+    }
+
+    public static InputStream getFileFromGZIP(String srcUrl, String fileName, Charset charset) {
         String filePath = "./" + DIRECTORY + "/" + fileName;
         InputStream targetStream = null;
         new File(DIRECTORY).mkdirs();
@@ -127,6 +133,10 @@ public class FileHandler implements RPByteChannelCallback {
             }
         }
         return targetStream;
+    }
+
+    public static InputStream getFileFromGZIP(String srcUrl, String fileName) {
+        return getFileFromGZIP(srcUrl, fileName, StandardCharsets.UTF_8);
     }
 
     public static InputStream getFileFromTar(String srcUrl, String directory, String fileName) throws IOException {
