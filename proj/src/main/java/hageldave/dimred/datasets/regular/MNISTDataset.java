@@ -9,16 +9,16 @@ import java.util.stream.IntStream;
 import java.util.zip.GZIPInputStream;
 
 public class MNISTDataset {
-	
+
 	private static MNISTDataset instance;
 	private static final String SRC_URL_IMG = "http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz";
 	private static final String SRC_URL_LBL = "http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz";
 	private static final String DIRECTORY = "datasets";
 	private static final String fileName = "train-images-idx3-ubyte.gz";
-	
+
 	public final double[][] data;
 	public final int[] klass;
-	final int[][] klass2Indices = new int[10][];
+	public final int[][] klass2Indices = new int[10][];
 
 	private MNISTDataset() {
 		// read images
@@ -62,7 +62,7 @@ public class MNISTDataset {
 			@SuppressWarnings("unused")
 			int magic = dis.readInt();
 			int nlabels = dis.readInt();
-			
+
 			int[] labels = new int[nlabels];
 			for(int i=0; i<nlabels; i++) {
 				labels[i] = dis.readUnsignedByte();
@@ -77,14 +77,15 @@ public class MNISTDataset {
 			klass2Indices[t] = IntStream.range(0, klass.length).filter(i->klass[i]==t_).toArray();
 		}
 	}
-		public double[][] getAllOfClass(int type){
+	
+	public double[][] getAllOfClass(int type){
 		return Arrays.stream(klass2Indices[type]).mapToObj(i->data[i]).toArray(double[][]::new);
 	}
-	
+
 	public int getNumClasses() {
 		return klass2Indices.length;
 	}
-	
+
 	public static MNISTDataset getInstance() {
 		if(instance==null)
 			instance = new MNISTDataset();
