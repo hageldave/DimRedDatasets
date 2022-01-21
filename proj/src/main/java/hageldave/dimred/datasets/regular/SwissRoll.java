@@ -9,11 +9,6 @@ import java.util.stream.IntStream;
 
 public class SwissRoll {
 
-    public enum DATA_TYPE {
-        PRE,
-        ROLL
-    }
-
     private static SwissRoll instance;
     private static final String PRE_SRC_DATA = "https://people.cs.uchicago.edu/~dinoj/manifold/preswissroll.dat";
     private static final String PRE_SRC_LBL = "https://people.cs.uchicago.edu/~dinoj/manifold/preswissroll_labels.dat";
@@ -25,11 +20,9 @@ public class SwissRoll {
 
     public final double[][] preData;
     public final double[][] rollData;
-    public final int[] preKlass;
-    public final int[] rollKlass;
+    public final int[] klass;
     public final String[] klassNames = new String[]{"1","2","3","4"};
-    final int[][] preKlass2Indices = new int[4][];
-    final int[][] rollKlass2Indices = new int[4][];
+    final int[][] klass2Indices = new int[4][];
 
     private SwissRoll() {
         ArrayList<double[]> pre_dataset = new ArrayList<>();
@@ -58,7 +51,7 @@ public class SwissRoll {
                 double[] values = new double[3];
                 values[0] = Double.parseDouble(dataFields[0]);
                 values[1] = Double.parseDouble(dataFields[1]);
-                values[2] = Double.parseDouble(labelFields[0]);
+                values[2] = Double.parseDouble(labelFields[0])-1; // -1 cause classes are labeled starting at 1
 
                 pre_dataset.add(values);
             }
@@ -74,31 +67,32 @@ public class SwissRoll {
 
                 dataFields = Arrays.stream(dataFields).filter(e->!e.equals("")).toArray(String[]::new);
 
-                double[] values = new double[4];
+                double[] values = new double[3];
                 values[0] = Double.parseDouble(dataFields[0]);
                 values[1] = Double.parseDouble(dataFields[1]);
                 values[2] = Double.parseDouble(dataFields[2]);
-                values[3] = Double.parseDouble(label_fields.get(0));
                 roll_dataset.add(values);
             }
         }
 
         rollData = roll_dataset.stream().map(v -> Arrays.copyOf(v, 3)).toArray(double[][]::new);
         preData = pre_dataset.stream().map(v -> Arrays.copyOf(v, 2)).toArray(double[][]::new);
-        preKlass = pre_dataset.stream().mapToInt(v -> (int)v[2]).toArray();
-        rollKlass = roll_dataset.stream().mapToInt(v -> (int)v[3]).toArray();
+        klass = pre_dataset.stream().mapToInt(v -> (int)v[2]).toArray();
         for(int t=0; t<4; t++) {
             int t_=t;
-            preKlass2Indices[t] = IntStream.range(0, preKlass.length).filter(i-> preKlass[i]==t_).toArray();
-            rollKlass2Indices[t] = IntStream.range(0, rollKlass.length).filter(i-> rollKlass[i]==t_).toArray();
+            klass2Indices[t] = IntStream.range(0, klass.length).filter(i-> klass[i]==t_).toArray();
         }
     }
 
-    public double[][] getAllOfClass(DATA_TYPE dataType, int type) {
-        if (dataType == DATA_TYPE.ROLL) {
-            return Arrays.stream(rollKlass2Indices[type]).mapToObj(i-> rollData[i]).toArray(double[][]::new);
+    public double[][] getAllOfClass(int type) {
+    	return getAllOfClass(true, type);
+    }
+    
+    public double[][] getAllOfClass(boolean rolled, int type) {
+        if (rolled) {
+            return Arrays.stream(klass2Indices[type]).mapToObj(i-> rollData[i]).toArray(double[][]::new);
         } else {
-            return Arrays.stream(preKlass2Indices[type]).mapToObj(i-> preData[i]).toArray(double[][]::new);
+            return Arrays.stream(klass2Indices[type]).mapToObj(i-> preData[i]).toArray(double[][]::new);
         }
     }
 
@@ -113,6 +107,6 @@ public class SwissRoll {
     }
 
     public int getNumClasses() {
-        return preKlass2Indices.length;
+        return klass2Indices.length;
     }
 }
