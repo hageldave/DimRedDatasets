@@ -13,8 +13,9 @@ public class MNISTDataset {
 	private static MNISTDataset instance;
 	private static final String SRC_URL_IMG = "http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz";
 	private static final String SRC_URL_LBL = "http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz";
-	private static final String DIRECTORY = "datasets";
-	private static final String fileName = "train-images-idx3-ubyte.gz";
+	private static final String GZIP_DIRECTORY = FileHandler.getDirectory();
+	private static final String IMG_FILENAME = "train-images-idx3-ubyte.gz";
+	private static final String LBL_FILENAME = "train-labels-idx1-ubyte.gz";
 
 	public final double[][] data;
 	public final int[] klass;
@@ -22,9 +23,9 @@ public class MNISTDataset {
 
 	private MNISTDataset() {
 		// read images
-		File file = new File( "./" + DIRECTORY + "/" + fileName);
+		File file = new File( GZIP_DIRECTORY + IMG_FILENAME);
 		try (
-				BufferedReader br = FileHandler.getFile(SRC_URL_IMG, "train-images-idx3-ubyte.gz");
+				BufferedReader br = FileHandler.getFile(SRC_URL_IMG, IMG_FILENAME);
 				InputStream is = new FileInputStream(file);
 				BufferedInputStream bis = new BufferedInputStream(is);
 				GZIPInputStream zis = new GZIPInputStream(bis);
@@ -47,13 +48,12 @@ public class MNISTDataset {
 			}
 			this.data = data;
 		} catch (IOException e) {
-			System.out.println(e);
 			throw new RuntimeException("could not load data from file",e);
 		}
 
 		// read labels
 		try (
-				BufferedReader br = FileHandler.getFile(SRC_URL_LBL, "train-labels-idx1-ubyte.gz");
+				BufferedReader br = FileHandler.getFile(SRC_URL_LBL, LBL_FILENAME);
 				InputStream is = new FileInputStream(file);
 				BufferedInputStream bis = new BufferedInputStream(is);
 				GZIPInputStream zis = new GZIPInputStream(bis);

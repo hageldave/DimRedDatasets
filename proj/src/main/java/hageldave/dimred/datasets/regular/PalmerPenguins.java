@@ -17,7 +17,7 @@ public class PalmerPenguins {
 
     private static PalmerPenguins instance;
     private static final String SRC_URL = "https://zenodo.org/record/3960218/files/allisonhorst/palmerpenguins-v0.1.0.zip";
-    private static final String DIRECTORY = "allisonhorst-palmerpenguins-e5bfd5f/inst/extdata/";
+    private static final String FILE_DIRECTORY = "allisonhorst-palmerpenguins-e5bfd5f/inst/extdata/";
     private static final String FILE_NAME = "penguins.csv";
 
     protected static final HashMap<String, Integer> species2Int = new HashMap<>();
@@ -53,7 +53,7 @@ public class PalmerPenguins {
         sex2Int.put("female", 1);
 
         ArrayList<double[]> dataset = new ArrayList<>();
-        try (Scanner sc = new Scanner(FileHandler.getFileFromZIP(SRC_URL, DIRECTORY, FILE_NAME))) {
+        try (Scanner sc = new Scanner(FileHandler.getFileFromZIP(SRC_URL, FILE_DIRECTORY, FILE_NAME))) {
             boolean firstLineRead = false;
             while(sc.hasNextLine()) {
                 String nextLine = sc.nextLine();

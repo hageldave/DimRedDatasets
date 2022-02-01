@@ -108,7 +108,7 @@ public class FileHandler implements RPByteChannelCallback {
         return getFileFromZIP(srcUrl, directory, fileName, StandardCharsets.UTF_8);
     }
 
-    public static InputStream getFileFromGZIP(String srcUrl, String fileName, Charset charset) {
+    public static InputStream getFileFromGZIP(String srcUrl, String fileName) {
         String filePath = DIRECTORY + fileName;
         InputStream targetStream = null;
         new File(DIRECTORY).mkdirs();
@@ -135,17 +135,13 @@ public class FileHandler implements RPByteChannelCallback {
         return targetStream;
     }
 
-    public static InputStream getFileFromGZIP(String srcUrl, String fileName) {
-        return getFileFromGZIP(srcUrl, fileName, StandardCharsets.UTF_8);
-    }
-
-    public static InputStream getFileFromTar(String srcUrl, String directory, String fileName) throws IOException {
-        TarArchiveInputStream tarInput = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(srcUrl)));
+    public static InputStream readFileFromTar(String tarPath, String fileDirectory, String fileName) throws IOException {
+        TarArchiveInputStream tarInput = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(tarPath)));
 
         ArchiveEntry entry = tarInput.getNextTarEntry();
         InputStream isr = null;
         while (entry != null) {
-            if (entry.getName().equals(directory + fileName) && !entry.isDirectory()) {
+            if (entry.getName().equals(fileDirectory + fileName) && !entry.isDirectory()) {
                 isr = tarInput; // Read
                 break;
             }
@@ -168,5 +164,9 @@ public class FileHandler implements RPByteChannelCallback {
     @Override
     public void rpByteChannelCallback(RPByteChannel rpbc, double progress) {
         System.out.printf("Download progress: %d bytes received | Percent: %.02f%%%n", rpbc.getBytesRead(), progress);
+    }
+
+    public static String getDirectory() {
+        return FileHandler.DIRECTORY;
     }
 }

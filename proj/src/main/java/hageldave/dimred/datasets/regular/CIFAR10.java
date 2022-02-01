@@ -25,8 +25,9 @@ public class CIFAR10 implements RPByteChannelCallback {
 
     private static CIFAR10 instance;
     private static final String SRC_URL = "https://www.cs.toronto.edu/~kriz/cifar-10-binary.tar.gz";
-    private static final String DIRECTORY = "cifar-10-batches-bin/";
+    private static final String FILE_DIRECTORY = "cifar-10-batches-bin/";
     private static final String FILE_NAME = "cifar-10-binary.tar.gz";
+    private static final String TAR_DIRECTORY = FileHandler.getDirectory();
 
     private static final int BATCH_SIZE = 10000;
     private static final int BATCH_COUNT = 5;
@@ -55,7 +56,7 @@ public class CIFAR10 implements RPByteChannelCallback {
             try (BufferedReader br = FileHandler.getFile(FILE_NAME, channel)) {
                 for (int j = 1; j < BATCH_COUNT + 1; j++) {
                     // read all
-                    try (InputStream cifarIS = FileHandler.getFileFromTar("./datasets/" + FILE_NAME, DIRECTORY, "data_batch_" + j + ".bin")) {
+                    try (InputStream cifarIS = FileHandler.readFileFromTar(TAR_DIRECTORY + FILE_NAME, FILE_DIRECTORY, "data_batch_" + j + ".bin")) {
                         for (int i = 0; i < BATCH_SIZE; i++) {
                             int label = cifarIS.read();
                             cmbndTrainingDataLbls.add(label);
@@ -74,7 +75,7 @@ public class CIFAR10 implements RPByteChannelCallback {
                     }
                 }
 
-                try (InputStream cifarIS = FileHandler.getFileFromTar("./datasets/" + FILE_NAME, DIRECTORY, "test_batch.bin")) {
+                try (InputStream cifarIS = FileHandler.readFileFromTar(TAR_DIRECTORY + FILE_NAME, FILE_DIRECTORY, "test_batch.bin")) {
                     for (int i = 0; i < BATCH_SIZE; i++) {
                         testDataLbls.add(cifarIS.read());
                         byte[] byteBuf = new byte[3072];
