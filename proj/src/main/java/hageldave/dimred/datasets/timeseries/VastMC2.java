@@ -114,10 +114,10 @@ public class VastMC2 {
     }
 
     public static class TypeLocation2Data {
-        private int id;
-        private double value;
-        private LocalDate sampleDate;
-        private int measure;
+        public final int id;
+        public final double value;
+        public final LocalDate sampleDate;
+        public final int measure;
 
         public TypeLocation2Data(int id, double value, LocalDate sampleDate, int measure) {
             this.id = id;
@@ -125,82 +125,18 @@ public class VastMC2 {
             this.sampleDate = sampleDate;
             this.measure = measure;
         }
-
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
-
-        public double getValue() {
-            return value;
-        }
-
-        public void setValue(double value) {
-            this.value = value;
-        }
-
-        public LocalDate getSampleDate() {
-            return sampleDate;
-        }
-
-        public void setSampleDate(LocalDate sampleDate) {
-            this.sampleDate = sampleDate;
-        }
-
-        public int getMeasure() {
-            return measure;
-        }
-
-        public void setMeasure(int measure) {
-            this.measure = measure;
-        }
     }
 
     public static class TypeDate2Data {
-        private int id;
-        private double value;
-        private int location;
-        private int measure;
+        public final int id;
+        public final double value;
+        public final int location;
+        public final int measure;
 
         public TypeDate2Data(int id, double value, int location, int measure) {
             this.id = id;
             this.value = value;
             this.location = location;
-            this.measure = measure;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
-
-        public double getValue() {
-            return value;
-        }
-
-        public void setValue(double value) {
-            this.value = value;
-        }
-
-        public int getLocation() {
-            return location;
-        }
-
-        public void setLocation(int location) {
-            this.location = location;
-        }
-
-        public int getMeasure() {
-            return measure;
-        }
-
-        public void setMeasure(int measure) {
             this.measure = measure;
         }
     }
