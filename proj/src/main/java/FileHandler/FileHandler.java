@@ -16,11 +16,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class FileHandler implements RPByteChannelCallback {
-    private static final String DIRECTORY = "datasets";
+    private static final String DIRECTORY = System.getProperty("dimred.datasets.directorypath", "./datasets/");
     private static final int BUFFER_SIZE = 4096;
 
     public static BufferedReader getFile(String srcUrl, String fileName) {
-        String filePath = "./" + DIRECTORY + "/" + fileName;
+        String filePath = DIRECTORY + fileName;
         BufferedReader reader;
         new File(DIRECTORY).mkdirs();
         File file = new File(filePath);
@@ -41,7 +41,7 @@ public class FileHandler implements RPByteChannelCallback {
     }
 
     public static BufferedReader getFile(String fileName, RPByteChannel rpByteChannel) {
-        String filePath = "./" + DIRECTORY + "/" + fileName;
+        String filePath = DIRECTORY + fileName;
         BufferedReader reader;
         new File(DIRECTORY).mkdirs();
         File file = new File(filePath);
@@ -76,7 +76,7 @@ public class FileHandler implements RPByteChannelCallback {
     }
     
     public static BufferedReader getFileFromZIP(String srcUrl, String directory, String fileName, Charset charset) {
-        String filePath = "./" + DIRECTORY + "/" + fileName;
+        String filePath = DIRECTORY + fileName;
         BufferedReader reader;
         try {
             new File(DIRECTORY).mkdirs();
@@ -109,7 +109,7 @@ public class FileHandler implements RPByteChannelCallback {
     }
 
     public static InputStream getFileFromGZIP(String srcUrl, String fileName, Charset charset) {
-        String filePath = "./" + DIRECTORY + "/" + fileName;
+        String filePath = DIRECTORY + fileName;
         InputStream targetStream = null;
         new File(DIRECTORY).mkdirs();
         File file = new File(filePath);
