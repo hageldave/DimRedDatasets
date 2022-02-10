@@ -16,13 +16,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class FileHandler implements RPByteChannelCallback {
-    private static final String DIRECTORY = System.getProperty("dimred.datasets.directorypath", "./datasets/");
     private static final int BUFFER_SIZE = 4096;
 
     public static BufferedReader getFile(String srcUrl, String fileName) {
-        String filePath = DIRECTORY + fileName;
+        String filePath = getTargetDirectory() + fileName;
         BufferedReader reader;
-        new File(DIRECTORY).mkdirs();
+        new File(getTargetDirectory()).mkdirs();
         File file = new File(filePath);
 
         try (ReadableByteChannel rbc = Channels.newChannel(new URL(srcUrl).openStream())) {
@@ -41,9 +40,9 @@ public class FileHandler implements RPByteChannelCallback {
     }
 
     public static BufferedReader getFile(String fileName, RPByteChannel rpByteChannel) {
-        String filePath = DIRECTORY + fileName;
+        String filePath = getTargetDirectory() + fileName;
         BufferedReader reader;
-        new File(DIRECTORY).mkdirs();
+        new File(getTargetDirectory()).mkdirs();
         File file = new File(filePath);
 
         try {
@@ -76,10 +75,10 @@ public class FileHandler implements RPByteChannelCallback {
     }
     
     public static BufferedReader getFileFromZIP(String srcUrl, String directory, String fileName, Charset charset) {
-        String filePath = DIRECTORY + fileName;
+        String filePath = getTargetDirectory() + fileName;
         BufferedReader reader;
         try {
-            new File(DIRECTORY).mkdirs();
+            new File(getTargetDirectory()).mkdirs();
             File file = new File(filePath);
 
             if (!file.isFile()) {
@@ -109,9 +108,9 @@ public class FileHandler implements RPByteChannelCallback {
     }
 
     public static InputStream getFileFromGZIP(String srcUrl, String fileName) {
-        String filePath = DIRECTORY + fileName;
+        String filePath = getTargetDirectory() + fileName;
         InputStream targetStream = null;
-        new File(DIRECTORY).mkdirs();
+        new File(getTargetDirectory()).mkdirs();
         File file = new File(filePath);
         if (!file.isFile()) {
             try (
@@ -166,7 +165,7 @@ public class FileHandler implements RPByteChannelCallback {
         System.out.printf("Download progress: %d bytes received | Percent: %.02f%%%n", rpbc.getBytesRead(), progress);
     }
 
-    public static String getDirectory() {
-        return FileHandler.DIRECTORY;
+    public static String getTargetDirectory() {
+        return System.getProperty("dimred.datasets.directorypath", "./datasets/");
     }
 }
