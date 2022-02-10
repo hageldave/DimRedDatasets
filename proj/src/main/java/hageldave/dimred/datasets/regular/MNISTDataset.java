@@ -13,7 +13,7 @@ public class MNISTDataset {
 	private static MNISTDataset instance;
 	private static final String SRC_URL_IMG = "http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz";
 	private static final String SRC_URL_LBL = "http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz";
-	private static final String GZIP_DIRECTORY = FileHandler.getDirectory();
+	private static final String GZIP_DIRECTORY = FileHandler.getTargetDirectory();
 	private static final String IMG_FILENAME = "train-images-idx3-ubyte.gz";
 	private static final String LBL_FILENAME = "train-labels-idx1-ubyte.gz";
 

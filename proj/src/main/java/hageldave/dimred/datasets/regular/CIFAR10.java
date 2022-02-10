@@ -27,7 +27,7 @@ public class CIFAR10 implements RPByteChannelCallback {
     private static final String SRC_URL = "https://www.cs.toronto.edu/~kriz/cifar-10-binary.tar.gz";
     private static final String FILE_DIRECTORY = "cifar-10-batches-bin/";
     private static final String FILE_NAME = "cifar-10-binary.tar.gz";
-    private static final String TAR_DIRECTORY = FileHandler.getDirectory();
+    private static final String TAR_DIRECTORY = FileHandler.getTargetDirectory();
 
     private static final int BATCH_SIZE = 10000;
     private static final int BATCH_COUNT = 5;
