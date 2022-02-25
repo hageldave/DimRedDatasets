@@ -61,11 +61,11 @@ public class AutoMPG {
         }
     }
 
-    public double[][] getAllOfClass(int value) {
+    public double[][] getAllOfCategory(int value) {
         return Arrays.stream(origin2Indices[value]).mapToObj(i -> data[i]).toArray(double[][]::new);
     }
 
-    public int getNumClasses() {
+    public int getNumCategories() {
         return origin2Indices.length;
     }
 
@@ -73,10 +73,5 @@ public class AutoMPG {
         if(instance==null)
             instance = new AutoMPG();
         return instance;
-    }
-
-    public static void main(String[] args) {
-        AutoMPG mpg = getInstance();
-        System.out.println(Arrays.deepToString(mpg.data));
     }
 }

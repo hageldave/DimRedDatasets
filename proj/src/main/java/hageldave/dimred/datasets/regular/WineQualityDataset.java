@@ -13,8 +13,8 @@ public class WineQualityDataset {
     private static final String FILE_NAME = "winequality-red.csv";
 
     public final double[][] data;
-    public final int[] klass;
-    final int[][] klass2Indices = new int[10][];
+    public final int[] category;
+    final int[][] category2Indices = new int[10][];
 
     private WineQualityDataset() {
         ArrayList<double[]> dataset = new ArrayList<>();
@@ -36,21 +36,21 @@ public class WineQualityDataset {
                 dataset.add(values);
             }
             data = dataset.stream().map(v -> Arrays.copyOf(v, 11)).toArray(double[][]::new);
-            klass = dataset.stream().mapToInt(v -> (int) v[11]).toArray();
+            category = dataset.stream().mapToInt(v -> (int) v[11]).toArray();
             for (int t = 0; t < 10; t++) {
                 int t_ = t;
-                klass2Indices[t] = IntStream.range(0, klass.length).filter(i -> klass[i] == t_).toArray();
+                category2Indices[t] = IntStream.range(0, category.length).filter(i -> category[i] == t_).toArray();
             }
         }
     }
 
 
-    public int getNumClasses() {
-        return klass2Indices.length;
+    public int getAllOfCategory() {
+        return category2Indices.length;
     }
 
     public double[][] getAllOfClass(int type) {
-        return Arrays.stream(klass2Indices[type]).mapToObj(i -> data[i]).toArray(double[][]::new);
+        return Arrays.stream(category2Indices[type]).mapToObj(i -> data[i]).toArray(double[][]::new);
     }
 
     public static WineQualityDataset getInstance() {

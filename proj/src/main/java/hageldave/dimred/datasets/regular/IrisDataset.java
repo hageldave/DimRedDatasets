@@ -14,9 +14,9 @@ public class IrisDataset {
 	private static final String SRC_URL = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data";
 	private static final String FILE_NAME = "iris.data";
 	public final double[][] data;
-	public final int[] klass;
-	public final String[] klassNames = new String[]{"setosa","versicolor","virginica"};
-	final int[][] klass2Indices = new int[3][];
+	public final int[] category;
+	public final String[] categoryNames = new String[]{"setosa","versicolor","virginica"};
+	final int[][] category2Indices = new int[3][];
 	
 	private IrisDataset() {
 		ArrayList<double[]> dataset = new ArrayList<>();
@@ -44,15 +44,15 @@ public class IrisDataset {
 		}
 		
 		data = dataset.stream().map(v -> Arrays.copyOf(v, 4)).toArray(double[][]::new);
-		klass = dataset.stream().mapToInt(v -> (int)v[4]).toArray();
+		category = dataset.stream().mapToInt(v -> (int)v[4]).toArray();
 		for(int t=0; t<3; t++) {
 			int t_=t;
-			klass2Indices[t] = IntStream.range(0, klass.length).filter(i->klass[i]==t_).toArray();
+			category2Indices[t] = IntStream.range(0, category.length).filter(i-> category[i]==t_).toArray();
 		}
 	}
 	
-	public double[][] getAllOfClass(int type){
-		return Arrays.stream(klass2Indices[type]).mapToObj(i->data[i]).toArray(double[][]::new);
+	public double[][] getAllOfCategory(int type){
+		return Arrays.stream(category2Indices[type]).mapToObj(i->data[i]).toArray(double[][]::new);
 	}
 	
 	public static IrisDataset getInstance() {
@@ -61,8 +61,8 @@ public class IrisDataset {
 		return instance;
 	}
 	
-	public int getNumClasses() {
-		return klass2Indices.length;
+	public int getNumCategories() {
+		return category2Indices.length;
 	}
 }
 

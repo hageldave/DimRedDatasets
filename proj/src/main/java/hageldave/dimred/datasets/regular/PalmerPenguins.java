@@ -9,7 +9,7 @@ import java.util.stream.IntStream;
 public class PalmerPenguins {
 
     // penguin class
-    public enum PClass {
+    public enum PCategory {
         SPECIES,
         ISLAND,
         SEX
@@ -24,20 +24,20 @@ public class PalmerPenguins {
     protected static final HashMap<String, Integer> island2Int = new HashMap<>();
     protected static final HashMap<String, Integer> sex2Int = new HashMap<>();
 
-    public final String[] speciesKlassNames = new String[]{"Adelie","Gentoo","Chinstrap"};
-    public final String[] islandKlassNames = new String[]{"Torgersen","Biscoe","Dream"};
-    public final String[] sexKlassNames = new String[]{"male","female"};
+    public final String[] speciesCategoryNames = new String[]{"Adelie","Gentoo","Chinstrap"};
+    public final String[] islandCategoryNames = new String[]{"Torgersen","Biscoe","Dream"};
+    public final String[] sexCategoryNames = new String[]{"male","female"};
 
     public final double[][] data;
 
-    public final int[] speciesKlass;
-    final int[][] speciesKlass2Indices = new int[3][];
+    public final int[] speciesCategory;
+    final int[][] speciesCategory2Indices = new int[3][];
 
-    public final int[] islandKlass;
-    final int[][] islandKlass2Indices = new int[3][];
+    public final int[] islandCategory;
+    final int[][] islandCategory2Indices = new int[3][];
 
-    public final int[] sexKlass;
-    final int[][] sexKlass2Indices = new int[2][];
+    public final int[] sexCategory;
+    final int[][] sexCategory2Indices = new int[2][];
 
 
     private PalmerPenguins() {
@@ -84,18 +84,18 @@ public class PalmerPenguins {
         }
 
         data = dataset.stream().map(v -> Arrays.copyOf(v, 8)).toArray(double[][]::new);
-        speciesKlass = dataset.stream().mapToInt(v -> (int)v[0]).toArray();
-        islandKlass = dataset.stream().mapToInt(v -> (int)v[1]).toArray();
-        sexKlass = dataset.stream().mapToInt(v -> (int)v[6]).toArray();
+        speciesCategory = dataset.stream().mapToInt(v -> (int)v[0]).toArray();
+        islandCategory = dataset.stream().mapToInt(v -> (int)v[1]).toArray();
+        sexCategory = dataset.stream().mapToInt(v -> (int)v[6]).toArray();
 
         for(int t=0; t<3; t++) {
             int t_=t;
-            speciesKlass2Indices[t] = IntStream.range(0, speciesKlass.length).filter(i->speciesKlass[i]==t_).toArray();
-            islandKlass2Indices[t] = IntStream.range(0, islandKlass.length).filter(i->islandKlass[i]==t_).toArray();
+            speciesCategory2Indices[t] = IntStream.range(0, speciesCategory.length).filter(i->speciesCategory[i]==t_).toArray();
+            islandCategory2Indices[t] = IntStream.range(0, islandCategory.length).filter(i->islandCategory[i]==t_).toArray();
         }
         for(int t=0; t<2; t++) {
             int t_=t;
-            sexKlass2Indices[t] = IntStream.range(0, sexKlass.length).filter(i->sexKlass[i]==t_).toArray();
+            sexCategory2Indices[t] = IntStream.range(0, sexCategory.length).filter(i->sexCategory[i]==t_).toArray();
         }
     }
 
@@ -104,27 +104,27 @@ public class PalmerPenguins {
     }
 
     // return each data array from a penguin/island/sex class
-    public double[][] getAllOfClass(PClass pClass, int type) {
-        switch (pClass) {
+    public double[][] getAllOfCategory(PCategory pCategory, int type) {
+        switch (pCategory) {
             case SPECIES:
-                return Arrays.stream(speciesKlass2Indices[type]).mapToObj(i->data[i]).toArray(double[][]::new);
+                return Arrays.stream(speciesCategory2Indices[type]).mapToObj(i->data[i]).toArray(double[][]::new);
             case ISLAND:
-                return Arrays.stream(islandKlass2Indices[type]).mapToObj(i->data[i]).toArray(double[][]::new);
+                return Arrays.stream(islandCategory2Indices[type]).mapToObj(i->data[i]).toArray(double[][]::new);
             case SEX:
-                return Arrays.stream(sexKlass2Indices[type]).mapToObj(i->data[i]).toArray(double[][]::new);
+                return Arrays.stream(sexCategory2Indices[type]).mapToObj(i->data[i]).toArray(double[][]::new);
             default:
                 return null;
         }
     }
 
-    public int getNumClasses(PClass pClass) {
-        switch (pClass) {
+    public int getNumCategories(PCategory pCategory) {
+        switch (pCategory) {
             case SPECIES:
-                return speciesKlass2Indices.length;
+                return speciesCategory2Indices.length;
             case ISLAND:
-                return islandKlass2Indices.length;
+                return islandCategory2Indices.length;
             case SEX:
-                return sexKlass2Indices.length;
+                return sexCategory2Indices.length;
         }
         return -1;
     }

@@ -40,10 +40,10 @@ public class CIFAR10 implements RPByteChannelCallback {
     public static final ArrayList<double[]> testDataAsDouble = new ArrayList<>(BATCH_SIZE);
     public static final ArrayList<Integer> testDataLbls = new ArrayList<>(BATCH_SIZE);
 
-    public final String[] klassNames = new String[]{"airplane", "automobile", "bird", "cat", "deer", "dog", "frog", "horse", "ship", "truck"};
+    public final String[] categoryNames = new String[]{"airplane", "automobile", "bird", "cat", "deer", "dog", "frog", "horse", "ship", "truck"};
 
-    final int[][] klass2IndicesTrainingData = new int[10][];
-    final int[][] klass2IndicesTestData = new int[10][];
+    final int[][] category2IndicesTrainingData = new int[10][];
+    final int[][] category2IndicesTestData = new int[10][];
 
     private CIFAR10() {
         // read images
@@ -96,20 +96,20 @@ public class CIFAR10 implements RPByteChannelCallback {
 
             for (int t = 0; t < 10; t++) {
                 int t_ = t;
-                klass2IndicesTrainingData[t] = IntStream.range(0, cmbndTrainingDataLbls.size()).filter(i -> cmbndTrainingDataLbls.get(i) == t_).toArray();
-                klass2IndicesTestData[t] = IntStream.range(0, testDataLbls.size()).filter(i -> testDataLbls.get(i) == t_).toArray();
+                category2IndicesTrainingData[t] = IntStream.range(0, cmbndTrainingDataLbls.size()).filter(i -> cmbndTrainingDataLbls.get(i) == t_).toArray();
+                category2IndicesTestData[t] = IntStream.range(0, testDataLbls.size()).filter(i -> testDataLbls.get(i) == t_).toArray();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public double[][] getAllOfClass(Dataset type, int klass) {
+    public double[][] getAllOfCategory(Dataset type, int category) {
         switch (type) {
             case TRAINING:
-                return Arrays.stream(klass2IndicesTrainingData[klass]).mapToObj(i -> cmbndTrainingDataAsDouble.toArray()[i]).toArray(double[][]::new);
+                return Arrays.stream(category2IndicesTrainingData[category]).mapToObj(i -> cmbndTrainingDataAsDouble.toArray()[i]).toArray(double[][]::new);
             case TEST:
-                return Arrays.stream(klass2IndicesTestData[klass]).mapToObj(i -> testDataAsDouble.toArray()[i]).toArray(double[][]::new);
+                return Arrays.stream(category2IndicesTestData[category]).mapToObj(i -> testDataAsDouble.toArray()[i]).toArray(double[][]::new);
             default:
                 return null;
         }
@@ -183,8 +183,8 @@ public class CIFAR10 implements RPByteChannelCallback {
         return image;
     }
 
-    public int getNumClasses() {
-        return klassNames.length;
+    public int getNumCategories() {
+        return categoryNames.length;
     }
 
     public static CIFAR10 getInstance() {

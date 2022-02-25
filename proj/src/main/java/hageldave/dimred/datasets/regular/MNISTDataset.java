@@ -18,8 +18,8 @@ public class MNISTDataset {
 	private static final String LBL_FILENAME = "train-labels-idx1-ubyte.gz";
 
 	public final double[][] data;
-	public final int[] klass;
-	public final int[][] klass2Indices = new int[10][];
+	public final int[] category;
+	public final int[][] category2Indices = new int[10][];
 
 	private MNISTDataset() {
 		// read images
@@ -67,23 +67,23 @@ public class MNISTDataset {
 			for(int i=0; i<nlabels; i++) {
 				labels[i] = dis.readUnsignedByte();
 			}
-			this.klass = labels;
+			this.category = labels;
 		} catch (IOException e) {
 			throw new RuntimeException("could not load data from file",e);
 		}
 		// get indices per class (digit)
 		for(int t=0; t<10; t++) {
 			int t_=t;
-			klass2Indices[t] = IntStream.range(0, klass.length).filter(i->klass[i]==t_).toArray();
+			category2Indices[t] = IntStream.range(0, category.length).filter(i-> category[i]==t_).toArray();
 		}
 	}
 	
-	public double[][] getAllOfClass(int type){
-		return Arrays.stream(klass2Indices[type]).mapToObj(i->data[i]).toArray(double[][]::new);
+	public double[][] getAllOfCategory(int type){
+		return Arrays.stream(category2Indices[type]).mapToObj(i->data[i]).toArray(double[][]::new);
 	}
 
-	public int getNumClasses() {
-		return klass2Indices.length;
+	public int getNumCategories() {
+		return category2Indices.length;
 	}
 
 	public static MNISTDataset getInstance() {

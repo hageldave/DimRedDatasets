@@ -20,9 +20,9 @@ public class SwissRoll {
 
     public final double[][] preData;
     public final double[][] rollData;
-    public final int[] klass;
-    public final String[] klassNames = new String[]{"1","2","3","4"};
-    final int[][] klass2Indices = new int[4][];
+    public final int[] category;
+    public final String[] categoryNames = new String[]{"1","2","3","4"};
+    final int[][] category2Indices = new int[4][];
 
     private SwissRoll() {
         ArrayList<double[]> pre_dataset = new ArrayList<>();
@@ -77,22 +77,22 @@ public class SwissRoll {
 
         rollData = roll_dataset.stream().map(v -> Arrays.copyOf(v, 3)).toArray(double[][]::new);
         preData = pre_dataset.stream().map(v -> Arrays.copyOf(v, 2)).toArray(double[][]::new);
-        klass = pre_dataset.stream().mapToInt(v -> (int)v[2]).toArray();
+        category = pre_dataset.stream().mapToInt(v -> (int)v[2]).toArray();
         for(int t=0; t<4; t++) {
             int t_=t;
-            klass2Indices[t] = IntStream.range(0, klass.length).filter(i-> klass[i]==t_).toArray();
+            category2Indices[t] = IntStream.range(0, category.length).filter(i-> category[i]==t_).toArray();
         }
     }
 
-    public double[][] getAllOfClass(int type) {
-    	return getAllOfClass(true, type);
+    public double[][] getAllOfCategory(int type) {
+    	return getAllOfCategory(true, type);
     }
     
-    public double[][] getAllOfClass(boolean rolled, int type) {
+    public double[][] getAllOfCategory(boolean rolled, int type) {
         if (rolled) {
-            return Arrays.stream(klass2Indices[type]).mapToObj(i-> rollData[i]).toArray(double[][]::new);
+            return Arrays.stream(category2Indices[type]).mapToObj(i-> rollData[i]).toArray(double[][]::new);
         } else {
-            return Arrays.stream(klass2Indices[type]).mapToObj(i-> preData[i]).toArray(double[][]::new);
+            return Arrays.stream(category2Indices[type]).mapToObj(i-> preData[i]).toArray(double[][]::new);
         }
     }
 
@@ -106,7 +106,7 @@ public class SwissRoll {
         return instance;
     }
 
-    public int getNumClasses() {
-        return klass2Indices.length;
+    public int getNumCategories() {
+        return category2Indices.length;
     }
 }
