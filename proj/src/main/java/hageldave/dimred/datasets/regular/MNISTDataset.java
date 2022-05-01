@@ -23,10 +23,10 @@ public class MNISTDataset {
 
 	private MNISTDataset() {
 		// read images
-		File file = new File( GZIP_DIRECTORY + IMG_FILENAME);
+		File imgFile = new File( GZIP_DIRECTORY + IMG_FILENAME);
 		try (
 				BufferedReader br = FileHandler.getFile(SRC_URL_IMG, IMG_FILENAME);
-				InputStream is = new FileInputStream(file);
+				InputStream is = new FileInputStream(imgFile);
 				BufferedInputStream bis = new BufferedInputStream(is);
 				GZIPInputStream zis = new GZIPInputStream(bis);
 				DataInputStream dis = new DataInputStream(zis))
@@ -36,7 +36,6 @@ public class MNISTDataset {
 			int nimages = dis.readInt();
 			int nrows = dis.readInt();
 			int ncols = dis.readInt();
-
 
 			double[][] data = new double[nimages][nrows*ncols];
 			final double toUnit = 1.0/255.0;
@@ -52,9 +51,10 @@ public class MNISTDataset {
 		}
 
 		// read labels
+		File lblFile = new File( GZIP_DIRECTORY + LBL_FILENAME);
 		try (
 				BufferedReader br = FileHandler.getFile(SRC_URL_LBL, LBL_FILENAME);
-				InputStream is = new FileInputStream(file);
+				InputStream is = new FileInputStream(lblFile);
 				BufferedInputStream bis = new BufferedInputStream(is);
 				GZIPInputStream zis = new GZIPInputStream(bis);
 				DataInputStream dis = new DataInputStream(zis))
