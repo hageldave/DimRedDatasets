@@ -8,11 +8,8 @@ import java.util.Scanner;
 import java.util.stream.IntStream;
 
 public class BreastCancerWisconsin {
-    private static WisconsinBreastCancerDatabase instance_1;
-    private static WisconsinDiagnosticBreastCancer instance_2;
-    private static WisconsinPrognosticBreastCancer instance_3;
-
     public static class WisconsinBreastCancerDatabase {
+        private static WisconsinBreastCancerDatabase instance;
         private static final String SRC_URL_FILE = "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/breast-cancer-wisconsin.data";
         private static final String FILE_NAME_FILE = "breast-cancer-wisconsin.data";
         public final int[][] data;
@@ -47,9 +44,16 @@ public class BreastCancerWisconsin {
         public int[][] getAllOfCategory(int type){
             return Arrays.stream(category2Indices[type]).mapToObj(i->data[i]).toArray(int[][]::new);
         }
+
+        public static WisconsinBreastCancerDatabase getInstance() {
+            if(instance==null)
+                instance = new WisconsinBreastCancerDatabase();
+            return instance;
+        }
     }
 
     public static class WisconsinDiagnosticBreastCancer {
+        private static WisconsinDiagnosticBreastCancer instance;
         private static final String SRC_URL_FILE = "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data";
         private static final String FILE_NAME_FILE = "wdbc.data";
         public final double[][] data;
@@ -91,9 +95,16 @@ public class BreastCancerWisconsin {
         public double[][] getAllOfCategory(int type){
             return Arrays.stream(category2Indices[type]).mapToObj(i->data[i]).toArray(double[][]::new);
         }
+
+        public static WisconsinDiagnosticBreastCancer getInstance() {
+            if(instance==null)
+                instance = new WisconsinDiagnosticBreastCancer();
+            return instance;
+        }
     }
 
     public static class WisconsinPrognosticBreastCancer {
+        private static WisconsinPrognosticBreastCancer instance;
         private static final String SRC_URL_FILE = "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wpbc.data";
         private static final String FILE_NAME_FILE = "wpbc.data";
         public final double[][] data;
@@ -135,23 +146,11 @@ public class BreastCancerWisconsin {
         public double[][] getAllOfCategory(int type){
             return Arrays.stream(category2Indices[type]).mapToObj(i->data[i]).toArray(double[][]::new);
         }
-    }
 
-    public static WisconsinBreastCancerDatabase getInstance(WisconsinBreastCancerDatabase wbcd) {
-        if(instance_1==null)
-            instance_1 = wbcd;
-        return instance_1;
-    }
-
-    public static WisconsinDiagnosticBreastCancer getInstance(WisconsinDiagnosticBreastCancer wdbc) {
-        if(instance_2==null)
-            instance_2 = wdbc;
-        return instance_2;
-    }
-
-    public static WisconsinPrognosticBreastCancer getInstance(WisconsinPrognosticBreastCancer wpbc) {
-        if(instance_3==null)
-            instance_3 = wpbc;
-        return instance_3;
+        public static WisconsinPrognosticBreastCancer getInstance() {
+            if(instance==null)
+                instance = new WisconsinPrognosticBreastCancer();
+            return instance;
+        }
     }
 }
