@@ -150,12 +150,4 @@ public class PalmerPenguins {
             instance = new PalmerPenguins();
         return instance;
     }
-
-    public static void main(String[] args) {
-        PalmerPenguins pp = getInstance();
-
-        System.out.println(Arrays.deepToString(pp.getAllOfCategory(PCategory.YEAR, 0)));
-        System.out.println(pp.getNumCategories(PCategory.YEAR));
-        System.out.println(Arrays.deepToString(pp.getRawData()));
-    }
 }
